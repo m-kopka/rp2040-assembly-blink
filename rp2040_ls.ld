@@ -36,7 +36,7 @@ SECTIONS {
 
         _sbss = .;      /* start address of .bss in SRAM */
         *(.bss*)
-        _ebss = .;      /* end address of .data in SRAM */
+        _ebss = .;      /* end address of .bss in SRAM */
         . = ALIGN(4);
 
     } > SRAM

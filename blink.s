@@ -2,9 +2,13 @@
 .cpu cortex-m0plus
 .thumb
 
-.equ RESETS_BASE, 0x4000c000
-.equ IO_BANK0_GPIO25_CTRL, 0x400140cc
-.equ SIO_BASE, 0xd0000000
+.equ RESETS_BASE,          0x4000c000   // Reset controller registers base
+.equ IO_BANK0_GPIO25_CTRL, 0x400140cc   // GPIO25 control including function select and overrides
+.equ SIO_BASE,             0xd0000000   // Single-cycle block registers base
+
+//---- SECOND STAGE FLASH BOOT -----------------------------------------------------------------------------------------------------------------------------------
+
+// section .boot2 contains assembled, padded and checksummed stage 2 bootloader
 
 .section .boot2, "ax"
 .word 0x4b32b500, 0x60582021, 0x21026898, 0x60984388
@@ -24,42 +28,47 @@
 .word 0x180000f4, 0xa0002022, 0x10000100, 0xe000ed08
 .word 0x00000000, 0x00000000, 0x00000000, 0x7a4eb274
 
-.section .vector_table, "ax"
-.align 2
+//---- VECTOR TABLE ----------------------------------------------------------------------------------------------------------------------------------------------
 
-.global _vector_table
+.section .vector_table, "ax"
 _vector_table:
-.word 0
-.word main
+.word 0         // stack init value (unused)
+.word main      // entry point
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 .type main, %function
 .global main
 main:
 
+    // clear RESETS_IO_BANK0 bit
     ldr r1, =RESETS_BASE
     movs r0, 0x20
-
     ldr r2, [r1, #0x00]
     bics r2, r2, r0
     str r2, [r1, #0x00]
-
 1:
+    // wait for RESET_DONE flag to set
     ldr r2, [r1, #0x08]
     ands r2, r2, r0
     beq 1b
 
+    // set GPIO25 function to SIO
     ldr r1, =IO_BANK0_GPIO25_CTRL
     movs r0, #5
     str r0, [r1, #0x00]
 
+    // set GPIO25 output enable
     ldr r1, =SIO_BASE
     movs r0, #1
     lsls r0, r0, #25
     str r0, [r1, #0x24]
 
 loop:
+    // set bit 25 in SIO_GPIO_OUT_XOR register to flip state of GPI025
     str r0, [r1, #0x1c]
 
+    // busy wait
     ldr r3, =2000000
 1:
     subs r3, r3, #1

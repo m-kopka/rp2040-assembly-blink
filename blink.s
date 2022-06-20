@@ -42,27 +42,27 @@ _vector_table:
 main:
 
     // clear RESETS_IO_BANK0 bit
-    ldr r1, =RESETS_BASE
+    ldr  r1, =RESETS_BASE
     movs r0, 0x20
-    ldr r2, [r1, #0x00]
+    ldr  r2, [r1, #0x00]
     bics r2, r2, r0
-    str r2, [r1, #0x00]
+    str  r2, [r1, #0x00]
 1:
     // wait for RESET_DONE flag to set
-    ldr r2, [r1, #0x08]
+    ldr  r2, [r1, #0x08]
     ands r2, r2, r0
-    beq 1b
+    beq  1b
 
     // set GPIO25 function to SIO
-    ldr r1, =IO_BANK0_GPIO25_CTRL
+    ldr  r1, =IO_BANK0_GPIO25_CTRL
     movs r0, #5
-    str r0, [r1, #0x00]
+    str  r0, [r1, #0x00]
 
     // set GPIO25 output enable
-    ldr r1, =SIO_BASE
+    ldr  r1, =SIO_BASE
     movs r0, #1
     lsls r0, r0, #25
-    str r0, [r1, #0x24]
+    str  r0, [r1, #0x24]
 
 loop:
     // set bit 25 in SIO_GPIO_OUT_XOR register to flip state of GPI025

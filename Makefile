@@ -7,7 +7,7 @@ build: build/blink.uf2
 
 # compile
 build/blink.elf: blink.s
-	arm-none-eabi-gcc -Wall -mcpu=cortex-m0plus -mthumb -nostdlib -T rp2040_ls.ld -std=gnu11 -O0 $< -o $@
+	arm-none-eabi-gcc -Wall -mcpu=cortex-m0plus -mthumb -nostdlib -T rp2040_ls.ld -std=gnu11 -O0 blink.s -o build/blink.elf
 
 # convert ELF file to UF2 file
 build/blink.uf2: build/blink.elf
@@ -16,7 +16,7 @@ build/blink.uf2: build/blink.elf
 #---- FLASH ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 flash: build/blink.uf2
-	cp $< /Volumes/RPI-RP2
+	cp build/blink.uf2 /Volumes/RPI-RP2
 
 #---- CLEAN ------------------------------------------------------------------------------------------------------------------------------------------------------
 
